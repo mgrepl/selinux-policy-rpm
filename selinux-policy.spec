@@ -88,7 +88,7 @@ SELinux sandbox policy used for the policycoreutils-sandbox package
 
 %files sandbox
 %defattr(-,root,root,-)
-# %verify(not md5 size mtime) /usr/share/selinux/packages/sandbox.pp
+%verify(not md5 size mtime) /usr/share/selinux/packages/sandbox.pp
 
 %post sandbox
 rm -f /etc/selinux/*/modules/active/modules/sandbox.pp.disabled 2>/dev/null
@@ -118,14 +118,14 @@ SELinux policy development and man page package
 
 %files devel
 %defattr(-,root,root,-)
-# %{_mandir}/man*/*
+%{_mandir}/man*/*
 %{_mandir}/ru/*/*
 %dir %{_usr}/share/selinux/devel
 %dir %{_usr}/share/selinux/devel/include
 %{_usr}/share/selinux/devel/include/*
-# %dir %{_usr}/share/selinux/devel/html
-# %{_usr}/share/selinux/devel/html/*html
-# %{_usr}/share/selinux/devel/html/*css
+%dir %{_usr}/share/selinux/devel/html
+%{_usr}/share/selinux/devel/html/*html
+%{_usr}/share/selinux/devel/html/*css
 %{_usr}/share/selinux/devel/Makefile
 %{_usr}/share/selinux/devel/example.*
 %{_usr}/share/selinux/devel/policy.*
@@ -168,6 +168,8 @@ make UNK_PERMS=%4 NAME=%1 TYPE=%2 DISTRO=%{distro} UBAC=n DIRECT_INITRC=%3 MONOL
 make validate UNK_PERMS=%4 NAME=%1 TYPE=%2 DISTRO=%{distro} UBAC=n DIRECT_INITRC=%3 MONOLITHIC=%{monolithic} MLS_CATS=1024 MCS_CATS=1024 SEMOD_EXP="/usr/bin/semodule_expand -a" modules \
 make UNK_PERMS=%4 NAME=%1 TYPE=%2 DISTRO=%{distro} UBAC=n DIRECT_INITRC=%3 MONOLITHIC=%{monolithic} DESTDIR=%{buildroot} MLS_CATS=1024 MCS_CATS=1024 install \
 make UNK_PERMS=%4 NAME=%1 TYPE=%2 DISTRO=%{distro} UBAC=n DIRECT_INITRC=%3 MONOLITHIC=%{monolithic} DESTDIR=%{buildroot} MLS_CATS=1024 MCS_CATS=1024 install-appconfig \
+mkdir -p %{buildroot}%{_usr}/share/selinux/packages \
+mv sandbox.pp %{buildroot}/usr/share/selinux/packages/sandbox.pp \
 make UNK_PERMS=%4 NAME=%1 TYPE=%2 DISTRO=%{distro} UBAC=n DIRECT_INITRC=%3 MONOLITHIC=%{monolithic} DESTDIR=%{buildroot} MLS_CATS=1024 MCS_CATS=1024 SEMODULE="semodule -p %{buildroot} -X 100 " load \
 %{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/logins \
 # %{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/policy \
@@ -195,7 +197,6 @@ cp %{SOURCE30} %{buildroot}%{_sysconfdir}/selinux/%1 \
 # rm -f %{buildroot}/%{_usr}/share/selinux/%1/base.pp  \
 # for i in %{buildroot}/%{_usr}/share/selinux/%1/*.pp; do bzip2 -c $i > %{buildroot}/%{_sysconfdir}/selinux/%1/modules/active/modules/`basename $i`; done \
 rm -f %{buildroot}/%{_usr}/share/selinux/%1/*pp*  \
-mkdir -p %{buildroot}%{_usr}/share/selinux/packages \
 # /usr/sbin/semodule -s %1 -n -B -p %{buildroot}; \
 /usr/bin/sha512sum %{buildroot}%{_sysconfdir}/selinux/%1/policy/policy.%{POLICYVER} | cut -d' ' -f 1 > %{buildroot}%{_sysconfdir}/selinux/%1/.policy.sha512; \
 rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/contexts/netfilter_contexts  \
@@ -346,8 +347,6 @@ for i in %{SOURCE1} %{SOURCE2} %{SOURCE3} %{SOURCE4} %{SOURCE5} %{SOURCE6} %{SOU
 done
 tar zxvf selinux_config/config.tgz
 
-#sed -i 's/\(.*\)\$(SEMODULE)\(.*\)/\1\$(SEMODULE) -p $(DESTDIR) \2/' Rules.modular
-
 %install
 # Build targeted policy
 %{__rm} -fR %{buildroot}
@@ -371,7 +370,6 @@ cp %{SOURCE28} %{buildroot}/%{_usr}/share/selinux/targeted
 %makeCmds targeted mcs n allow
 %makeModulesConf targeted base contrib
 %installCmds targeted mcs n allow
-# semodule -p %{buildroot} -s targeted -i selinux/targeted/modules/active/modules/sandbox.pp
 rm -rf %{buildroot}%{_sharedstatedir}/selinux/targeted/active/modules/100/sandbox
 %modulesList targeted 
 %nonBaseModulesList targeted
@@ -386,6 +384,7 @@ cp %{SOURCE28} %{buildroot}/%{_usr}/share/selinux/minimum
 %makeModulesConf targeted base contrib
 %installCmds minimum mcs n allow
 rm -f %{buildroot}/%{_sysconfdir}/selinux/minimum/modules/active/modules/sandbox.pp
+rm -rf %{buildroot}%{_sharedstatedir}/selinux/minimum/active/modules/100/sandbox
 %modulesList minimum
 %nonBaseModulesList minimum
 %endif
@@ -410,10 +409,10 @@ install -m 644 doc/example.* %{buildroot}%{_usr}/share/selinux/devel/
 install -m 644 doc/policy.* %{buildroot}%{_usr}/share/selinux/devel/
 echo  "xdg-open file:///usr/share/doc/selinux-policy/html/index.html"> %{buildroot}%{_usr}/share/selinux/devel/policyhelp
 chmod +x %{buildroot}%{_usr}/share/selinux/devel/policyhelp
-# /usr/bin/sepolicy manpage -a -p %{buildroot}/usr/share/man/man8/ -w -r %{buildroot}
-# mkdir %{buildroot}%{_usr}/share/selinux/devel/html
-# # mv %{buildroot}%{_usr}/share/man/man8/*.html %{buildroot}%{_usr}/share/selinux/devel/html
-# mv %{buildroot}%{_usr}/share/man/man8/style.css %{buildroot}%{_usr}/share/selinux/devel/html
+/usr/bin/sepolicy manpage -a -p %{buildroot}/usr/share/man/man8/ -w -r %{buildroot}
+mkdir %{buildroot}%{_usr}/share/selinux/devel/html
+mv %{buildroot}%{_usr}/share/man/man8/*.html %{buildroot}%{_usr}/share/selinux/devel/html
+mv %{buildroot}%{_usr}/share/man/man8/style.css %{buildroot}%{_usr}/share/selinux/devel/html
 
 mkdir -p %{buildroot}%{_rpmconfigdir}/macros.d
 echo '%%_selinux_policy_version %{version}-%{release}' > %{buildroot}%{_rpmconfigdir}/macros.d/macros.selinux-policy
