@@ -172,24 +172,12 @@ mkdir -p %{buildroot}%{_usr}/share/selinux/packages \
 mv sandbox.pp %{buildroot}/usr/share/selinux/packages/sandbox.pp \
 make UNK_PERMS=%4 NAME=%1 TYPE=%2 DISTRO=%{distro} UBAC=n DIRECT_INITRC=%3 MONOLITHIC=%{monolithic} DESTDIR=%{buildroot} MLS_CATS=1024 MCS_CATS=1024 SEMODULE="semodule -p %{buildroot} -X 100 " load \
 %{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/logins \
-# %{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/policy \
-# %{__mkdir} -p %{buildroot}/%_sharedstatedir/selinux/%1/active/modules \
-# %{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/modules/active/modules \
-# %{__mkdir} -p %{buildroot}/%{_sysconfdir}/selinux/%1/contexts/files \
-# touch %{buildroot}/%{_sharedstatedir}/selinux/%1/semanage.read.LOCK \
-# touch %{buildroot}/%{_sharedstatedir}/selinux/%1/semanage.trans.LOCK \
-# rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/booleans \
-# touch %{buildroot}%{_sysconfdir}/selinux/%1/policy/policy.%{POLICYVER} \
 touch %{buildroot}%{_sysconfdir}/selinux/%1/contexts/files/file_contexts.subs \
 install -m0644 selinux_config/securetty_types-%1 %{buildroot}%{_sysconfdir}/selinux/%1/contexts/securetty_types \
 install -m0644 selinux_config/file_contexts.subs_dist %{buildroot}%{_sysconfdir}/selinux/%1/contexts/files \
 install -m0644 selinux_config/setrans-%1.conf %{buildroot}%{_sysconfdir}/selinux/%1/setrans.conf \
 install -m0644 selinux_config/customizable_types %{buildroot}%{_sysconfdir}/selinux/%1/contexts/customizable_types \
-# touch %{buildroot}%{_sysconfdir}/selinux/%1/seusers \
 touch %{buildroot}%{_sysconfdir}/selinux/%1/contexts/files/file_contexts.local \
-# touch %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/nodes.local \
-# touch %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/users_extra.local \
-# touch %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/users.local \
 touch %{buildroot}%{_sysconfdir}/selinux/%1/file_contexts.homedirs.bin \
 touch %{buildroot}%{_sysconfdir}/selinux/%1/file_contexts.bin \
 cp %{SOURCE30} %{buildroot}%{_sysconfdir}/selinux/%1 \
@@ -201,7 +189,6 @@ rm -f %{buildroot}/%{_usr}/share/selinux/%1/*pp*  \
 /usr/bin/sha512sum %{buildroot}%{_sysconfdir}/selinux/%1/policy/policy.%{POLICYVER} | cut -d' ' -f 1 > %{buildroot}%{_sysconfdir}/selinux/%1/.policy.sha512; \
 rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/contexts/netfilter_contexts  \
 rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/policy.kern \
-# ln -sf /etc/selinux/%1/policy/policy.%{POLICYVER}  %{buildroot}%{_sharedstatedir}/selinux/%1/active/modules/policy.kern \
 %nil
 
 %define fileList() \
@@ -211,13 +198,10 @@ rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/policy.kern \
 %config(noreplace) %{_sysconfdir}/selinux/%1/setrans.conf \
 %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/seusers \
 %dir %{_sysconfdir}/selinux/%1/logins \
-# %dir %{_sysconfdir}/selinux/%1/modules \
 %dir %{_sharedstatedir}/selinux/%1/active \
 %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/semanage.read.LOCK \
 %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/semanage.trans.LOCK \
 %dir %attr(700,root,root) %dir %{_sharedstatedir}/selinux/%1/active/modules \
-# %dir %{_sharedstatedir}/selinux/%1/active/modules \
-# %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/commit_num \
 %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/active/modules/100/base \
 # %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/file_contexts \
 # %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/file_contexts.homedirs \
@@ -229,7 +213,6 @@ rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/policy.kern \
 # %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/active/modules/policy.kern \
 # %ghost %{_sysconfdir}/selinux/%1/modules/active/*.local \
 %ghost %{_sysconfdir}/selinux/%1/*.bin \
-%ghost %{_sysconfdir}/selinux/%1/modules/active/seusers \
 %dir %{_sysconfdir}/selinux/%1/policy/ \
 %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/policy/policy.%{POLICYVER} \
 %{_sysconfdir}/selinux/%1/.policy.sha512 \
@@ -416,9 +399,6 @@ mv %{buildroot}%{_usr}/share/man/man8/style.css %{buildroot}%{_usr}/share/selinu
 
 mkdir -p %{buildroot}%{_rpmconfigdir}/macros.d
 echo '%%_selinux_policy_version %{version}-%{release}' > %{buildroot}%{_rpmconfigdir}/macros.d/macros.selinux-policy
-# rm -rf %{buildroot}/var/lib/selinux/targeted/active
-# /usr/libexec/selinux/semanage_migrate_store -r %{buildroot} -n -c
-# rm -f %{buildroot}/%{_sysconfdir}/selinux/%1/modules/active/base.pp
 
 
 rm -rf selinux_config
