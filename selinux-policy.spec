@@ -8,10 +8,10 @@
 %define BUILD_TARGETED 1
 %endif
 %if %{?BUILD_MINIMUM:0}%{!?BUILD_MINIMUM:1}
-%define BUILD_MINIMUM 0
+%define BUILD_MINIMUM 1
 %endif
 %if %{?BUILD_MLS:0}%{!?BUILD_MLS:1}
-%define BUILD_MLS 0
+%define BUILD_MLS 1
 %endif
 %define POLICYVER 29
 %define POLICYCOREUTILSVER 2.4-0
