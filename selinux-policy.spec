@@ -229,7 +229,9 @@ rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/policy.kern \
 %config(noreplace) %{_sysconfdir}/selinux/%1/contexts/userhelper_context \
 %dir %{_sysconfdir}/selinux/%1/contexts/files \
 %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts \
-%verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.* \
+%verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.bin \
+%verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.homedirs* \
+%verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.local \
 # %ghost %{_sysconfdir}/selinux/%1/contexts/files/*.bin \
 # %config(noreplace) %{_sharedstatedir}/selinux/%1/active/*.local \
 %config(noreplace) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.subs \
@@ -550,11 +552,12 @@ exit 0
 %config(noreplace) %{_sysconfdir}/selinux/minimum/contexts/users/unconfined_u
 %config(noreplace) %{_sysconfdir}/selinux/minimum/contexts/users/sysadm_u 
 %fileList minimum
-%verify(not md5 size mtime) %{_sysconfdir}/selinux/minimum/modules/active/modules/permissivedomains.pp
+# %verify(not md5 size mtime) %{_sysconfdir}/selinux/minimum/modules/active/modules/permissivedomains.pp
 %{_usr}/share/selinux/minimum/base.lst
 %{_usr}/share/selinux/minimum/modules-base.lst
 %{_usr}/share/selinux/minimum/modules-contrib.lst
 %{_usr}/share/selinux/minimum/nonbasemodules.lst
+%{_sharedstatedir}/selinux/minimum/active/commit_num
 %endif
 
 %if %{BUILD_MLS}
@@ -587,6 +590,7 @@ SELinux Reference policy mls base module.
 %{_usr}/share/selinux/mls/modules-base.lst
 %{_usr}/share/selinux/mls/modules-contrib.lst
 %{_usr}/share/selinux/mls/nonbasemodules.lst
+%{_sharedstatedir}/selinux/mls/active/commit_num
 %endif
 
 %changelog
