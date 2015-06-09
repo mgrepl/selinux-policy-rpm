@@ -19,7 +19,7 @@
 Summary: SELinux policy configuration
 Name: selinux-policy
 Version: 3.13.1
-Release: 127%{?dist}.2
+Release: 127%{?dist}.3
 License: GPLv2+
 Group: System Environment/Base
 Source: serefpolicy-%{version}.tgz
