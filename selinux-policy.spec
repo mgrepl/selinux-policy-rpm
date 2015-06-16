@@ -19,7 +19,7 @@
 Summary: SELinux policy configuration
 Name: selinux-policy
 Version: 3.13.1
-Release: 129%{?dist}.1
+Release: 129%{?dist}.2
 License: GPLv2+
 Group: System Environment/Base
 Source: serefpolicy-%{version}.tgz
@@ -200,15 +200,6 @@ rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/policy.kern \
 %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/semanage.trans.LOCK \
 %dir %attr(700,root,root) %dir %{_sharedstatedir}/selinux/%1/active/modules \
 %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/active/modules/100/base \
-# %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/file_contexts \
-# %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/file_contexts.homedirs \
-# %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/file_contexts.template \
-# %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/seusers.final \
-# %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/netfilter_contexts \
-# %config(noreplace) %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/users_extra \
-# %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/modules/active/homedir_template \
-# %verify(not md5 size mtime) %{_sharedstatedir}/selinux/%1/active/modules/policy.kern \
-# %ghost %{_sysconfdir}/selinux/%1/modules/active/*.local \
 %ghost %{_sysconfdir}/selinux/%1/*.bin \
 %dir %{_sysconfdir}/selinux/%1/policy/ \
 %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/policy/policy.%{POLICYVER} \
@@ -236,7 +227,6 @@ rm -rf %{buildroot}%{_sysconfdir}/selinux/%1/modules/active/policy.kern \
 %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.homedirs* \
 %verify(not md5 size mtime) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.local \
 # %ghost %{_sysconfdir}/selinux/%1/contexts/files/*.bin \
-# %config(noreplace) %{_sharedstatedir}/selinux/%1/active/*.local \
 %config(noreplace) %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.subs \
 %{_sysconfdir}/selinux/%1/contexts/files/file_contexts.subs_dist \
 %{_sysconfdir}/selinux/%1/booleans.subs_dist \
@@ -433,9 +423,6 @@ SELINUXTYPE=targeted
      restorecon /etc/selinux/config 2> /dev/null || :
 else
      . /etc/selinux/config
-     # if first time update booleans.local needs to be copied to sandbox
-     [ -f /etc/selinux/${SELINUXTYPE}/booleans.local ] && mv /etc/selinux/${SELINUXTYPE}/booleans.local /etc/selinux/targeted/modules/active/
-     [ -f /etc/selinux/${SELINUXTYPE}/seusers ] && cp -f /etc/selinux/${SELINUXTYPE}/seusers /etc/selinux/${SELINUXTYPE}/modules/active/seusers
 fi
 exit 0
 
