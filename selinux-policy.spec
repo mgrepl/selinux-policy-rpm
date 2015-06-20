@@ -19,7 +19,7 @@
 Summary: SELinux policy configuration
 Name: selinux-policy
 Version: 3.13.1
-Release: 129%{?dist}.2
+Release: 129%{?dist}.3
 License: GPLv2+
 Group: System Environment/Base
 Source: serefpolicy-%{version}.tgz
@@ -473,6 +473,19 @@ exit 0
 
 %triggerpostun targeted -- selinux-policy-targeted < 3.12.1-75
 restorecon -R -p /home
+exit 0
+
+%triggerpostun targeted -- selinux-policy-targeted < 3.13.1-130
+set -x
+for i in `find /etc/selinux/targeted/modules/active/modules/ -name \*disabled`; do
+	module=`basename $i | sed 's/.pp.disabled//'`
+	if [ -d /var/lib/selinux/targeted/active/modules/100/$module ]; then
+		semodule -d $module
+	fi
+done
+for i in `find /etc/selinux/targeted/modules/active/modules/ -name \*.pp`; do
+	semodule -i $i
+done
 exit 0
 
 %files targeted -f %{buildroot}/%{_usr}/share/selinux/targeted/nonbasemodules.lst
