@@ -475,17 +475,21 @@ exit 0
 restorecon -R -p /home
 exit 0
 
-%triggerpostun targeted -- selinux-policy-targeted < 3.13.1-131
+%triggerpostun targeted -- selinux-policy-targeted < 3.13.1-138
 set -x
 for i in `find /etc/selinux/targeted/modules/active/modules/ -name \*disabled`; do
-	module=`basename $i | sed 's/.pp.disabled//'`
-	if [ -d /var/lib/selinux/targeted/active/modules/100/$module ]; then
-		semodule -d $module
-	fi
+    module=`basename $i | sed 's/.pp.disabled//'`
+    if [ -d /var/lib/selinux/targeted/active/modules/100/$module ]; then
+        touch /var/lib/selinux/targeted/active/modules/disabled/$p
+    fi
 done
 for i in `find /etc/selinux/targeted/modules/active/modules/ -name \*.pp`; do
-	semodule -i $i
+    INPUT="${INPUT}${CR}module -N -a $i"
 done
+echo "$INPUT" | %{_sbindir}/semanage -S targeted import -N
+if /usr/sbin/selinuxenabled ; then
+        /usr/sbin/load_policy
+fi
 exit 0
 
 %files targeted -f %{buildroot}/%{_usr}/share/selinux/targeted/nonbasemodules.lst
