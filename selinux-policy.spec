@@ -2,7 +2,7 @@
 %define polyinstatiate n
 %define monolithic n
 %if %{?BUILD_DOC:0}%{!?BUILD_DOC:1}
-%define BUILD_DOC 1
+%define BUILD_DOC 0
 %endif
 %if %{?BUILD_TARGETED:0}%{!?BUILD_TARGETED:1}
 %define BUILD_TARGETED 1
@@ -19,7 +19,7 @@
 Summary: SELinux policy configuration
 Name: selinux-policy
 Version: 3.13.1
-Release: 130%{?dist}.1
+Release: 138%{?dist}
 License: GPLv2+
 Group: System Environment/Base
 Source: serefpolicy-%{version}.tgz
@@ -476,7 +476,6 @@ restorecon -R -p /home
 exit 0
 
 %triggerpostun targeted -- selinux-policy-targeted < 3.13.1-138
-set -x
 for i in `find /etc/selinux/targeted/modules/active/modules/ -name \*disabled`; do
     module=`basename $i | sed 's/.pp.disabled//'`
     if [ -d /var/lib/selinux/targeted/active/modules/100/$module ]; then
@@ -535,7 +534,7 @@ if [ $1 -eq 1 ]; then
 for p in $contribpackages; do
     touch /var/lib/selinux/minimum/active/modules/disabled/$p
 done
-+for p in $basepackages apache dbus inetd kerberos mta nis; do
+for p in $basepackages apache dbus inetd kerberos mta nis; do
     echo $p
     rm -f /var/lib/selinux/minimum/active/modules/disabled/$p
 done
@@ -616,7 +615,6 @@ SELinux Reference policy mls base module.
 
 
 %triggerpostun mls -- selinux-policy-mls < 3.13.1-138
-set -x
 for i in `find /etc/selinux/mls/modules/active/modules/ -name \*disabled`; do
     module=`basename $i | sed 's/.pp.disabled//'`
     if [ -d /var/lib/selinux/mls/active/modules/100/$module ]; then
