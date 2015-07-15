@@ -518,18 +518,22 @@ SELinux Reference policy minimum base module.
 %pre minimum
 %preInstall minimum
 if [ $1 -ne 1 ]; then
-   /usr/sbin/semodule -s minimum -l 2>/dev/null | awk '{ if ($3 != "Disabled") print $1; }' > /usr/share/selinux/minimum/instmodules.lst
+    /usr/sbin/semodule -s minimum --list-modules=full | awk '{ if ($4 != "disabled") print $2; }' > /usr/share/selinux/minimum/instmodules.lst
 fi
 
 %post minimum
 contribpackages=`cat /usr/share/selinux/minimum/modules-contrib.lst`
 basepackages=`cat /usr/share/selinux/minimum/modules-base.lst`
+if [ ! -d /var/lib/selinux/minimum/active/modules/disabled ]; then
+    mkdir /var/lib/selinux/minimum/active/modules/disabled
+fi
 if [ $1 -eq 1 ]; then
 for p in $contribpackages; do
-	touch /etc/selinux/minimum/modules/active/modules/$p.disabled
+    touch /var/lib/selinux/minimum/active/modules/disabled/$p
 done
-for p in $basepackages apache.pp dbus.pp inetd.pp kerberos.pp mta.pp nis.pp; do
-	rm -f /etc/selinux/minimum/modules/active/modules/$p.disabled
++for p in $basepackages apache dbus inetd kerberos mta nis; do
+    echo $p
+    rm -f /var/lib/selinux/minimum/active/modules/disabled/$p
 done
 /usr/sbin/semanage import -S minimum -f - << __eof
 login -m  -s unconfined_u -r s0-s0:c0.c1023 __default__
@@ -540,13 +544,34 @@ __eof
 else
 instpackages=`cat /usr/share/selinux/minimum/instmodules.lst`
 for p in $contribpackages; do
-    touch /etc/selinux/minimum/modules/active/modules/$p.disabled
+    touch /var/lib/selinux/minimum/active/modules/disabled/$p
 done
 for p in $instpackages apache dbus inetd kerberos mta nis; do
-    rm -f /etc/selinux/minimum/modules/active/modules/$p.pp.disabled
+    rm -f /var/lib/selinux/minimum/active/modules/disabled/$p
 done
 /usr/sbin/semodule -B -s minimum
 %relabel minimum
+fi
+exit 0
+
+%triggerpostun minimum -- selinux-policy-minimum < 3.13.1-138
+if [ `ls -A /var/lib/selinux/minimum/active/modules/disabled/` ]; then
+    rm -f /var/lib/selinux/minimum/active/modules/disabled/*
+fi
+CR=$'\n'
+INPUT=""
+for i in `find /etc/selinux/minimum/modules/active/modules/ -name \*disabled`; do
+    module=`basename $i | sed 's/.pp.disabled//'`
+    if [ -d /var/lib/selinux/minimum/active/modules/100/$module ]; then
+        touch /var/lib/selinux/minimum/active/modules/disabled/$p
+    fi
+done
+for i in `find /etc/selinux/minimum/modules/active/modules/ -name \*.pp`; do
+    INPUT="${INPUT}${CR}module -N -a $i"
+done
+echo "$INPUT" | %{_sbindir}/semanage -S minimum import -N
+if /usr/sbin/selinuxenabled ; then
+    /usr/sbin/load_policy
 fi
 exit 0
 
