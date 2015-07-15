@@ -614,6 +614,25 @@ SELinux Reference policy mls base module.
 %post mls 
 %postInstall $1 mls
 
+
+%triggerpostun mls -- selinux-policy-mls < 3.13.1-138
+set -x
+for i in `find /etc/selinux/mls/modules/active/modules/ -name \*disabled`; do
+    module=`basename $i | sed 's/.pp.disabled//'`
+    if [ -d /var/lib/selinux/mls/active/modules/100/$module ]; then
+        touch /var/lib/selinux/mls/active/modules/disabled/$p
+    fi
+done
+for i in `find /etc/selinux/mls/modules/active/modules/ -name \*.pp`; do
+    INPUT="${INPUT}${CR}module -N -a $i"
+done
+echo "$INPUT" | %{_sbindir}/semanage -S mls import -N
+if /usr/sbin/selinuxenabled ; then
+        /usr/sbin/load_policy
+fi
+exit 0
+
+
 %files mls -f %{buildroot}/%{_usr}/share/selinux/mls/nonbasemodules.lst
 %defattr(-,root,root,-)
 %config(noreplace) %{_sysconfdir}/selinux/mls/contexts/users/unconfined_u
